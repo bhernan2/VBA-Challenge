@@ -1,0 +1,40 @@
+Sub easy()
+
+'set variables
+Dim ticker_name As String
+Dim total_ticker_vol As Double
+    total_ticker_vol = 0
+Dim Summary_Table_Row As Integer
+    Summary_Table_Row = 2
+
+'label columns
+Range("I1").Value = "Ticker"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Percent Change"
+Range("L1").Value = "Total Stock Volume"
+
+'loop through sheet
+For i = 2 To 70926
+'check to see if in same ticker name
+   If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+      ' Set the ticker name
+     ticker_name = Cells(i, 1).Value
+      ' Add to the stock total
+      total_ticker_vol = total_ticker_vol + Cells(i, 3).Value
+      ' Print the ticker_name in the Summary Table
+      Range("I" & Summary_Table_Row).Value = ticker_name
+      ' Print the totoal stock vol to the Summary Table
+      Range("L" & Summary_Table_Row).Value = total_ticker_vol
+      
+      ' Add one to the summary table row
+      Summary_Table_Row = Summary_Table_Row + 1
+      ' Reset the total_ticker_vol
+      total_ticker_vol = 0
+    Else
+      ' Add to the total_ticker_vol
+      total_ticker_vol = total_ticker_vol + Cells(i, 3).Value
+    End If
+  Next i
+End Sub
+
+

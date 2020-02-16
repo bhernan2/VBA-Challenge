@@ -1,0 +1,125 @@
+Sub challenge()
+'Set ws as a worksheet object variable
+Dim currentWS As Worksheet
+
+'loop through all the sheets
+For Each currentWS In Worksheets
+
+'set variables
+    Dim ticker_name As String
+    Dim total_ticker_vol As Double
+    total_ticker_vol = 0
+    Dim open_price As Double
+    open_price = Cells(2, 3).Value
+    Dim close_price As Double
+    close_price = 0
+    Dim yearly_change As Double
+    yearly_change = 0
+    Dim percent_change As Double
+    percent_change = 0
+    Dim max_ticker_name As String
+    max_ticker_name = " "
+    Dim min_ticker_name As String
+    min_ticker_name = " "
+    Dim max_percent As Double
+    max_percent = 0
+    Dim min_percent As Double
+    min_percent = 0
+    Dim max_volume_ticker_name As String
+    max_volume_ticker_name = " "
+    Dim max_volume As Double
+    max_volume = 0
+    
+    'track ticker name location in summary table of currentWS
+    Dim Summary_Table_Row As Integer
+    Summary_Table_Row = 2
+    
+    'set row count for currentWS
+    Dim Lastrow As Long
+    Lastrow = currentWS.Cells(Rows.Count, 1).End(xlUp).Row
+
+    'label columns
+    currentWS.Range("I1").Value = "Ticker"
+    currentWS.Range("J1").Value = "Yearly Change"
+    currentWS.Range("K1").Value = "Percent Change"
+    currentWS.Range("L1").Value = "Total Stock Volume"
+    
+    'label row and columns for challenge
+    currentWS.Range("O2").Value = "Greatest % Increase"
+    currentWS.Range("O3").Value = "Greatest % Decrease"
+    currentWS.Range("O4").Value = "Greatest Total Volume"
+    currentWS.Range("P1").Value = "Ticker"
+    currentWS.Range("Q1").Value = "Value"
+
+    'per sheet loops
+    For i = 2 To Lastrow
+
+    'check to see if in same ticker name
+    If currentWS.Cells(i + 1, 1).Value <> currentWS.Cells(i, 1).Value Then
+        'Set the ticker name
+        ticker_name = currentWS.Cells(i, 1).Value
+        'set the yearly_change
+        close_price = currentWS.Cells(i, 6).Value
+        yearly_change = close_price - open_price
+        'set condition for zero values to get percent_change
+            If open_price <> 0 Then
+                percent_change = (yearly_change / open_price) * 100
+            End If
+        'set total stock volume
+        total_ticker_vol = total_ticker_vol + currentWS.Cells(i, 7).Value
+        'Print the ticker_name in the summary table
+        currentWS.Range("I" & Summary_Table_Row).Value = ticker_name
+        'Print the yearly change in summary table
+        currentWS.Range("J" & Summary_Table_Row).Value = yearly_change
+
+        'Conditional formatting that will highlight positive change in green and negative change in red
+            If (yearly_change > 0) Then
+                currentWS.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+            ElseIf (yearly_change < 0) Then
+                currentWS.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+            End If
+
+        'Print the percent change in summary table
+        currentWS.Range("K" & Summary_Table_Row).Value = percent_change
+        'Print the total stock vol to the Summary Table
+        currentWS.Range("L" & Summary_Table_Row).Value = total_ticker_vol
+
+        'Add one to the summary table row
+        Summary_Table_Row = Summary_Table_Row + 1
+        
+        'to get next open ticker price
+        open_price = currentWS.Cells(i + 1, 3).Value
+    
+        'chanllenge variables in summary table
+        If (yearly_change > max_percent) Then
+            max_percent = percent_change
+            max_ticker_name = ticker_name
+        ElseIf (percent_change < min_percent) Then
+            min_percent = percent_change
+            min_ticker_name = ticker_name
+        End If
+        
+        If (total_ticker_vol > max_volume) Then
+            max_volume = total_ticker_vol
+            max_volume_ticker_name = ticker_name
+        End If
+        'reset values
+        percent_change = 0
+        'total_ticker_vol = 0
+    Else
+      ' Add to the total_ticker_vol
+        total_ticker_vol = total_ticker_vol + currentWS.Cells(i, 7).Value
+
+    End If
+
+    Next i
+    
+        currentWS.Range("Q2").Value = max_percent
+        currentWS.Range("Q3").Value = min_percent
+        currentWS.Range("P2").Value = max_ticker_name
+        currentWS.Range("P3").Value = min_ticker_name
+        currentWS.Range("Q4").Value = max_volume
+        currentWS.Range("P4").Value = max_volume_ticker_name
+    
+Next currentWS
+End Sub
